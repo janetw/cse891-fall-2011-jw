@@ -1,0 +1,323 @@
+import csv, urllib
+
+#=========================
+
+def load_csv(url):
+    d = {}
+
+    #short list
+    #fp = urllib.urlopen('https://raw.github.com/ctb/edda/master/doc/beacon-2011/tutorial5/fishies-short.csv')
+    #long list
+    fp = urllib.urlopen('https://raw.github.com/ctb/edda/master/doc/beacon-2011/tutorial5/fishies.csv')
+
+    for row in csv.DictReader(fp):
+        key = row['date']
+        value = row['fish']
+
+#        print "This is row in loop: ", row
+#        print "This is key in loop: ", key
+#        print "This is value in loop: ", value
+
+        x = d.get(key, [])
+        x.append(value)
+        d[key] = x
+
+    return d
+
+#============================
+  # note, fish_d is a dictionary created by load_csv where the
+  # KEYS are dates and the VALUES are lists of fish.  from
+  # csv.DictReader.  so, fish_d[date] is a list of fish from that
+  # day.
+  #
+  # the return value, 'dates_d', should be a dictionary where the
+  # KEYS are fish and the VALUES are lists of dates.
+
+
+
+def make_dates_dict(fish_d):
+    dates_d = {}
+    list_of_fish = []
+    list_of_fish_w_dates = []
+    
+
+    for day in fish_d:
+        row = fish_d[day]
+
+#        print "this is day in 2nd for loop: ", day
+#        print "this is row in 2nd for loop: ", row
+
+
+        #This next FOR LOOP section takes 'i' or fish_name in each row and converts fish_name
+        #  to be the new key, i.e. new_key and day to become the new_value.
+        #  Thus swapping the key and value from the fish_d dictionary.
+        #The list_of_fish is just extra. I was working on creating a list of
+        #  non-duplicated fish types. Note - this came in handy later on :)
+        
+
+        for fish_name in row:
+#            print "This is 'fish_name' in fish_name for loop: ", fish_name
+            new_key = fish_name
+            new_value = day
+
+#            print "This is all happening in fish_name for loop: "
+#            print "This is new_key: ", new_key
+#            print "This is new_value: ", new_value
+
+
+            list_of_fish.append(new_key)
+
+            list_of_fish_w_dates = dates_d.get(new_key, [])
+            list_of_fish_w_dates.append(new_value)
+            dates_d[new_key] = list_of_fish_w_dates
+          
+          
+#            print "This is end of fish_name in for loop: "
+ 
+
+#    print
+#    print "This is list_of_fish: ", list_of_fish
+#    print
+
+    list_of_fish_2 = set(list_of_fish)
+#    print "This is list_of_fish_2: ", list_of_fish_2
+    print
+ 
+
+#    print "this is day out of 2nd for loop: ", day
+#    print "this is row out of 2nd for loop: ", row
+
+    return dates_d
+
+#==============================================
+
+def get_fishes_by_date(fish_d, date):
+    fishlist = []
+
+    date_check = is_date_in_list(fish_d, date)
+    #print date_check
+
+    if date_check == 0:
+#        print "This date is not in the list"
+        return fishlist
+
+
+    else:
+        
+        #This section creates a list of all the fish eaten on a certain date
+        #   including duplicates into list
+        #Then it takes that list and converts it to a set which eliminates the dups
+        #Then it takes that set and appends it into fishlist creating a new list with
+        #   no dups!
+        # Note - I was under the assumption, we didn't want to include dups and only wanted
+        # the different types.
+    
+        all_fish_eaten_on_day = fish_d[date]
+        each_type_fish_eaten_on_day = set(all_fish_eaten_on_day)
+
+        for name in each_type_fish_eaten_on_day:
+            #print "This is name: ", name
+            fishlist.append(name)
+    
+        return fishlist
+
+#=========================================================
+
+  # note, dates_d is a dictionary created by make_dates_dict; see the
+  # comment there for more info.
+#-------------------------------------------------------
+
+def get_dates_by_fish(dates_d, fish):
+    dateslist = []
+
+    fish_name_check = is_fish_name_in_list(dates_d, fish)
+#    print fish_name_check
+
+    if fish_name_check == 0:
+#        print "This fish is not in the list!"
+        return dateslist
+
+    else:
+        which_days_fish_was_eaten = dates_d[fish]
+        each_day_fish_was_eaten = set(which_days_fish_was_eaten)
+
+        for day in each_day_fish_was_eaten:
+            #print "this is day: ", day
+            dateslist.append(day)
+ 
+        return dateslist
+
+
+#============================================================
+def is_fish_name_in_list(dates_d, fish):
+
+    #If fish_in_list stays 0 then the fish is not in the list
+    
+    fish_in_list = 0
+
+    for name in dates_d:
+#        print "this is checking to see if name is in list", name
+        if fish == name:
+#            print "In list"
+            fish_in_list = fish_in_list + 1
+        else:
+            fish_in_list = fish_in_list + 0
+
+    if fish_in_list == 0:
+        return 0
+    else:
+        return 1
+
+
+#===============================================
+def is_date_in_list(fish_d, day_of_interest):
+
+    #If fish_in_list stays 0 then the fish is not in the list
+    
+    date_in_list = 0
+
+    for date in fish_d:
+#        print "this is checking to see if date is in list", date
+        if day_of_interest == date:
+#            print "In list"
+            date_in_list = date_in_list + 1
+        else:
+            date_in_list = date_in_list + 0
+
+    if date_in_list == 0:
+        return 0
+    else:
+        return 1
+
+#==================================================================
+#this function takes list of dates rather than an individual date
+#----------------------------------------------
+
+def get_fishes_by_datelist(fish_d, datelist):
+
+    dict_of_fish_for_all_days_in_list = {}
+
+    for date in datelist_of_interest:
+        list_of_fish_for_each_day = []
+        list_of_fish_for_each_day = get_fishes_by_date(fish_d, date)
+
+        list_of_fish_for_each_day.sort()
+        
+        dict_of_fish_for_all_days_in_list.setdefault(date, []).append(list_of_fish_for_each_day)
+
+    return dict_of_fish_for_all_days_in_list
+
+#==================================================================
+#this function takes list of fishes than an individual type of fish
+# note, dates_d is a dictionary created by make_dates_dict; see the
+  # comment there for more info.
+#------------------------------------------------
+
+def get_dates_by_fishlist(dates_d, fishlist_of_interest):
+
+#    print "Got into function"
+
+
+# Used this next section to check if fishlist[] actually got into function
+
+#    for fish in fishlist_of_interest:
+#        print fish
+
+
+# Creating the different lists and dictionary that will be used in function
+
+    dict_of_days_for_all_fish_in_list = {}
+
+# In the next section, used the function already created to obtain the list
+#  of dates for each fish. Note - the old function already returns a list of
+#  non-duplicated dates.
+    
+    for fish in fishlist_of_interest:
+        list_of_days_for_each_fish = []
+#        print "This is fish in fishlist", fish
+        list_of_days_for_each_fish = get_dates_by_fish(dates_d, fish)
+#        print "this is the list_of_days_for_each_fish in the FOR FISH loop:"
+#        print list_of_days_for_each_fish
+#        print
+    
+        list_of_days_for_each_fish.sort()
+
+
+# Found the following code online but don't really understand what it is doing,
+#  i.e. what does setdefault do?
+
+
+        dict_of_days_for_all_fish_in_list.setdefault(fish, []).append(list_of_days_for_each_fish)
+
+        
+    return dict_of_days_for_all_fish_in_list 
+
+
+#==============================================
+
+#================================================================
+#================================================================
+
+# this code is outside the functions and USES the functions to
+# load data and ask questions of the data.
+
+fish_d = load_csv('https://raw.github.com/ctb/edda/master/doc/beacon-2011/tutorial5/fishies.csv')
+print
+dates_d = make_dates_dict(fish_d)
+
+#print
+#print "this is fish_d: "
+#print fish_d
+#print
+#print "this is fish_d['1/1']: "
+#print fish_d['1/1']
+#print
+
+#print "this is dates_d: ", dates_d
+#print
+#print "this is dates_d['salmon']: "
+#print dates_d['salmon']
+print
+
+day_of_interest = '13/1'
+print "This is get_fishes_by_date(fish_d,'",day_of_interest,"'): "
+print get_fishes_by_date(fish_d, day_of_interest)
+print
+
+
+fish_of_interest = 'salmon'
+print "This is get_dates_by_fish(dates_d,'",fish_of_interest,"'): "
+print get_dates_by_fish(dates_d, fish_of_interest)
+print
+
+#------------------------------------
+# Checking to see what happens with and without print statement
+#get_dates_by_fish(dates_d, fish_of_interest)
+#print get_dates_by_fish(dates_d, fish_of_interest)
+#------------------------------------
+
+#fishlist_of_interest = ['salmon', 'cod', 'trout']
+fishlist_of_interest = ['bass', 'tilapia', 'tuna', 'maguro']
+#print "This is fishlist_of_interest: ", fishlist_of_interest
+#for fish in fishlist_of_interest:
+#    print fish
+print
+
+print "This is the result for get_dates_by_fishlist function:"
+#print get_dates_by_fishlist(dates_d, fishlist_of_interest)
+
+dates_for_fishes = get_dates_by_fishlist(dates_d, fishlist_of_interest)
+
+for f, v in dates_for_fishes.iteritems():
+    print f,v
+print
+
+    
+#--------------------------------------
+datelist_of_interest = ['1/12', '9/9', '14/1']
+fishies_for_dates = get_fishes_by_datelist(fish_d, datelist_of_interest)
+print "this is the result of get_fishes_by_datelist function: "
+for d, v in fishies_for_dates.iteritems():
+    print d,v
+
+
