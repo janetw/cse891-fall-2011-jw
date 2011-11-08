@@ -3,6 +3,8 @@ import math
 from matplotlib import pyplot
 from pylab import*
 import random
+#import dhtml
+image_file = '/root/Dropbox/graph.png'
 
 print random
 
@@ -18,6 +20,7 @@ def roll():
 
 x,y = roll()
 pyplot.plot( x, y )
+
 
 
 x, y = roll()
@@ -45,5 +48,8 @@ for i in range(100):
     avgs.append(roll2())
 
 pyplot.hist(avgs, 50)
+pyplot.savefig(image_file)
+#dhtml.image(image_file)
+
 show()
 
